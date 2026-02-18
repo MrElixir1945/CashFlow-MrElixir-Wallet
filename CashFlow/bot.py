@@ -60,7 +60,7 @@ def is_allowed(user_id):
 # --- MENU UTAMA ---
 def show_main_menu(chat_id, message_id=None):
     saldo = get_saldo(chat_id)
-    text = f"💳 **BADAWI WALLET**\n\nSaldo Saat Ini:\n🔥 *{format_rupiah(saldo)}*"
+    text = f"💳 **Mr Elixir Wallet**\n\nSaldo Saat Ini:\n🔥 *{format_rupiah(saldo)}*"
     
     markup = InlineKeyboardMarkup()
     btn_in = InlineKeyboardButton("Pemasukan 📥", callback_data="input_in")
