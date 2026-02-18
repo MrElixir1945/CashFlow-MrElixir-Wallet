@@ -1,0 +1,1 @@
+# *CashFlow - Manual Money Manager*
