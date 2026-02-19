@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Badawi Wallet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg: #0f1115; --card: #161b22; --border: rgba(255,255,255,0.1);
+            --text: #f0f6fc; --text-muted: #8b949e;
+            --green: #2ea043; --red: #da3633; --blue: #58a6ff;
+            --radius: 12px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 20px 16px 80px; }
+        .wrapper { max-width: 480px; margin: 0 auto; }
+
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .header h1 { font-size: 20px; font-weight: 800; }
+        .badge { background: rgba(88, 166, 255, 0.15); color: var(--blue); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+
+        /* SALDO CARD */
+        .balance-card { background: linear-gradient(180deg, #1c2128 0%, #161b22 100%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 30px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .balance-label { font-size:12px; color:#8b949e; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+        .balance-amount { font-size: 36px; font-weight: 800; margin: 0 0 20px; font-family: 'JetBrains Mono', monospace; color: #fff; }
+        .balance-row { display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 15px; }
+        .bal-item span { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px; }
+        .bal-item div { font-size: 15px; font-weight: 600; font-family: 'JetBrains Mono'; }
+        .green { color: var(--green); } .red { color: var(--red); }
+
+        /* HISTORY HEADER */
+        .hist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .hist-title { font-size: 16px; font-weight: 700; }
+        .edit-toggle { color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 8px; transition: 0.2s; }
+        .edit-toggle.active { color: var(--blue); transform: scale(1.1); }
+
+        /* HISTORY LIST */
+        .history-list { display: flex; flex-direction: column; gap: 12px; }
+        .hist-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; justify-content: space-between; align-items: center; position: relative; transition: 0.2s; }
+        
+        .item-left { display: flex; gap: 14px; align-items: center; }
+        .icon-box { width: 40px; height: 40px; background: #21262d; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 1px solid var(--border); }
+        
+        .item-desc { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+        .item-date { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono'; }
+        .item-amount { font-family: 'JetBrains Mono'; font-weight: 700; font-size: 14px; }
+
+        /* EDIT CONTROLS */
+        .edit-controls { display: none; gap: 8px; margin-left: 10px; }
+        .btn-act { width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+        .btn-del { background: rgba(218, 54, 51, 0.15); color: var(--red); }
+        .btn-edit { background: rgba(88, 166, 255, 0.15); color: var(--blue); }
+
+        .show-controls .edit-controls { display: flex; }
+        .show-controls .item-amount { display: none; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: #1c2128; padding: 24px; border-radius: 16px; width: 85%; max-width: 320px; border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .modal h3 { margin-bottom: 20px; font-size: 18px; text-align: center; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+        .input-field { width: 100%; background: #0d1117; border: 1px solid var(--border); padding: 12px; color: #fff; border-radius: 8px; outline: none; font-size: 14px; }
+        .input-field:focus { border-color: var(--blue); }
+        .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+        .m-btn { flex: 1; padding: 10px 0; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+        .btn-cancel { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+        .btn-confirm { background: var(--green); color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="header">
+        <h1>Badawi Wallet</h1>
+        <div class="badge">PRO</div>
+    </div>
+
+    <div class="balance-card">
+        <div class="balance-label">Total Saldo Aktif</div>
+        <div class="balance-amount">{{ saldo }}</div>
+        <div class="balance-row">
+            <div class="bal-item"><span>PEMASUKAN</span><div class="green">{{ pemasukan }}</div></div>
+            <div class="bal-item"><span>PENGELUARAN</span><div class="red">{{ pengeluaran }}</div></div>
+        </div>
+    </div>
+
+    <div class="hist-header">
+        <div class="hist-title">Riwayat Transaksi</div>
+        <div class="edit-toggle" onclick="requestEditMode()">
+            <i class="fas fa-pencil-alt"></i>
+        </div>
+    </div>
+
+    <div class="history-list" id="historyList">
+        {% for row in history %}
+        <div class="hist-item" id="row-{{ row['id'] }}">
+            <div class="item-left">
+                <div class="icon-box" style="color: {{ '#2ea043' if row['type'] == 'IN' else '#da3633' }}">
+                    <i class="fas {{ 'fa-arrow-up' if row['type'] == 'IN' else 'fa-arrow-down' }}"></i>
+                </div>
+                <div>
+                    <div class="item-desc" id="desc-{{ row['id'] }}">{{ row['description'] }}</div>
+                    <div class="item-date">{{ row['formatted_date'] }}</div>
+                </div>
+            </div>
+            
+            <div class="item-amount {{ 'green' if row['type'] == 'IN' else 'red' }}" id="amt-display-{{ row['id'] }}">
+                {{ '+' if row['type'] == 'IN' else '-' }} {{ "{:,.0f}".format(row['amount']).replace(',', '.') }}
+            </div>
+            
+            <div class="edit-controls">
+                <button class="btn-act btn-edit" onclick="openEditModal({{ row['id'] }}, '{{ row['description'] }}', {{ row['amount'] }})"><i class="fas fa-pen"></i></button>
+                <button class="btn-act btn-del" onclick="deleteItem({{ row['id'] }})"><i class="fas fa-trash-alt"></i></button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div id="passModal" class="modal">
+    <div class="modal-content">
+        <h3>🔐 Akses Admin</h3>
+        <div class="input-group">
+            <input type="password" id="adminPass" class="input-field" placeholder="Masukkan Password...">
+        </div>
+        <div class="modal-btns">
+            <button class="m-btn btn-cancel" onclick="closeModal('passModal')">Batal</button>
+            <button class="m-btn btn-confirm" onclick="verifyPass()">Buka</button>
+        </div>
+    </div>
+</div>
+
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h3>✏️ Edit Transaksi</h3>
+        <input type="hidden" id="editId">
+        <div class="input-group">
+            <label>Keterangan</label>
+            <input type="text" id="editDesc" class="input-field">
+        </div>
+        <div class="input-group">
+            <label>Nominal (Tanpa Titik)</label>
+            <input type="number" id="editAmount" class="input-field">
+        </div>
+        <div class="modal-btns">
+            <button class="m-btn btn-cancel" onclick="closeModal('editModal')">Batal</button>
+            <button class="m-btn btn-confirm" onclick="saveEdit()">Simpan</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let savedPass = "";
+    let isEditMode = false;
+
+    // Enter Key Listeners
+    document.getElementById('adminPass').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') verifyPass();
+    });
+    document.getElementById('editAmount').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') saveEdit();
+    });
+
+    function requestEditMode() {
+        if(isEditMode) {
+            isEditMode = false;
+            document.getElementById('historyList').classList.remove('show-controls');
+            document.querySelector('.edit-toggle').classList.remove('active');
+            savedPass = "";
+        } else {
+            document.getElementById('passModal').style.display = 'flex';
+            document.getElementById('adminPass').focus();
+        }
+    }
+
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function verifyPass() {
+        const pass = document.getElementById('adminPass').value;
+        if(!pass) return;
+        savedPass = pass;
+        isEditMode = true;
+        document.getElementById('historyList').classList.add('show-controls');
+        document.querySelector('.edit-toggle').classList.add('active');
+        closeModal('passModal');
+        document.getElementById('adminPass').value = "";
+    }
+
+    function deleteItem(id) {
+        // Hapus Langsung Tanpa Basa-basi
+        fetch('/api/delete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id: id, password: savedPass })
+        }).then(res => res.json()).then(data => {
+            if(data.status === 'success') location.reload();
+            else alert("Gagal: Password salah.");
+        });
+    }
+
+    function openEditModal(id, desc, amt) {
+        document.getElementById('editId').value = id;
+        document.getElementById('editDesc').value = desc;
+        document.getElementById('editAmount').value = amt;
+        document.getElementById('editModal').style.display = 'flex';
+        document.getElementById('editDesc').focus();
+    }
+
+    function saveEdit() {
+        const id = document.getElementById('editId').value;
+        const desc = document.getElementById('editDesc').value;
+        const amt = document.getElementById('editAmount').value;
+
+        fetch('/api/update', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id: id, description: desc, amount: amt, password: savedPass })
+        }).then(res => res.json()).then(data => {
+            if(data.status === 'success') location.reload();
+            else alert("Gagal: " + data.message);
+        });
+    }
+</script>
+
+</body>
+</html>
